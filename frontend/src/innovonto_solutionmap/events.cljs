@@ -1,6 +1,9 @@
 (ns innovonto-solutionmap.events
   (:require [re-frame.core :as re-frame]
-            [thi.ng.geom.viz.core :as geom]))
+            [thi.ng.geom.viz.core :as geom]
+            [day8.re-frame.http-fx]
+            [ajax.core :as ajax]
+            [innovonto-solutionmap.api :as api]))
 
 
 (re-frame/reg-event-db
@@ -27,22 +30,17 @@
 
 (re-frame/reg-event-db
   ::init-db-from-server-data
-  (fn [db [_ [response]]]
-    (assoc db :ideas (transform-all-ideas response))))
+  (fn [db [_ response]]
+    (do
+      ;;(println (str "init! response:" response))
+      (assoc db :ideas (transform-all-ideas (:ideas response))))))
 
 (re-frame/reg-event-db
   ::init-error
-  (fn [db _]
-    (assoc db :state "error")))
-
-#_(defn load-data-from-server []
-    (ajax/GET (str "/api/solutionmap-ideas")
-              {
-               :response-format :json
-               :keywords?       true
-               :handler         init-db-from-server-data
-               :error-handler   init-error
-               }))
+  (fn [db [_ error]]
+    (do
+      (println "Init returned an error: " error)
+      (assoc db :state "error"))))
 
 (defn update-tooltip [target idea]
   (let [matrix (.translate (.getScreenCTM target) (.getAttribute target "cx") (.getAttribute target "cy"))]
@@ -50,13 +48,13 @@
      :state   "shown"
      :left    (str (+ (.-pageXOffset js/window) (.-e matrix) -130) "px")
      :top     (str (+ (.-pageYOffset js/window) (.-f matrix) 10) "px")
-     :content {:image (:thumbnailPath idea) :title (:title idea) :description (:description idea)}}))
+     :content {:image (:thumbnailPath idea) :title (:title idea) :content (:content idea)}}))
 
 (re-frame/reg-event-db
   ::show-tooltip
   (fn [db [_ target idea]]
     (do
-      (println (str "Now Showing:" idea " in tooltip"))
+      ;;(println (str "Now Showing:" idea " in tooltip"))
       (assoc db :tooltip (update-tooltip target idea))
       )))
 
@@ -64,3 +62,26 @@
   ::hide-tooltip
   (fn [db _]
     (update-in db [:tooltip] assoc :state "hidden")))
+
+(re-frame/reg-event-db
+  ::use-mock-backend
+  (fn [db _]
+    (assoc db :backend "mock")))
+
+(re-frame/reg-event-db
+  ::use-live-backend
+  (fn [db _]
+    (assoc db :backend "live")))
+
+(re-frame/reg-event-fx
+  ::load-data
+  (fn [{:keys [db]} _]
+    {
+     :db         (assoc db :state "loading")
+     :http-xhrio {
+                  :method          :get
+                  :uri             (api/url-for :solutionmap-ideas)
+                  :format          (ajax/json-request-format)
+                  :response-format (ajax/json-response-format {:keywords? true})
+                  :on-success      [::init-db-from-server-data]
+                  :on-failure      [::init-error]}}))

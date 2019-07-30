@@ -1,7 +1,7 @@
 (ns innovonto-solutionmap.views
   (:require [innovonto-solutionmap.events :as events]
             [innovonto-solutionmap.subs :as subs]
-            [reagent.core :as reagent]
+            [innovonto-solutionmap.config :as config]
             [re-frame.core :as re-frame]))
 
 ;;TODO this hides the tooltip as soon as the mouse leaves the "circle" element. A better behaviour would be: include the tooltip div in the mouse-hover area
@@ -17,19 +17,27 @@
 
 
 ;;TOOLTIP STUFF
-;[idea-detail-component {:title "Rescue Window" :description "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed."}]
+;[idea-detail-component {:title "Rescue Window" :content "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed."}]
 (defn tooltip [config]
   (do
-    (println (str "now rerendering tooltip!" config))
+    ;;(println (str "now rerendering tooltip!" config))
     [:div.idea-detail-container {:class (:state config) :style {:top (:top config) :left (:left config)}}
      [:img {:src (:image (:content config))}]
      [:h2 (:title (:content config))]
-     [:p (:description (:content config))]]))
+     [:p (:content (:content config))]]))
 
+(defn debug-panel []
+  [:div
+   [:button {:on-click #(re-frame/dispatch [::events/debug-print-db])} "Print DB"]
+   [:button {:on-click #(re-frame/dispatch [::events/load-data])} "Load Data"]
+   [:button {:on-click #(re-frame/dispatch [::events/use-mock-backend])} "Use Mock-Backend"]
+   [:button {:on-click #(re-frame/dispatch [::events/use-live-backend])} "Use Live-Backend"]])
 
 (defn solutionmap-app []
   (let [app-state @(re-frame/subscribe [::subs/app-state])]
     [:div
+     (if config/debug?
+       [debug-panel])
      [tooltip (:tooltip app-state)]
      [:svg.solution-map {:view-box "0 0 500 500"}
       (map idea-circle (:ideas app-state))]]))

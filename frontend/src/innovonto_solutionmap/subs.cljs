@@ -6,3 +6,8 @@
   (fn [db _]
     db))
 
+
+(re-frame/reg-sub
+  ::backend
+  (fn [db _]
+    (:backend db)))

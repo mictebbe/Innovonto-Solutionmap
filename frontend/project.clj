@@ -12,7 +12,8 @@
                  [re-frame "0.10.6"]
                  [day8.re-frame/http-fx "0.1.6"]
                  [thi.ng/geom "0.0.1062"]
-                 [cljs-ajax "0.7.5"]]
+                 [cljs-ajax "0.7.5"]
+                 [bidi "2.1.6"]]
 
   :source-paths ["src"]
 
