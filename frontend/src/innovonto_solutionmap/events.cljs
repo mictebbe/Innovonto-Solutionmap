@@ -85,3 +85,13 @@
                   :response-format (ajax/json-response-format {:keywords? true})
                   :on-success      [::init-db-from-server-data]
                   :on-failure      [::init-error]}}))
+
+
+(defn toViewboxString [{:keys [x y width height]}]
+  (str x " " y " " width " " height))
+
+;; Solution-Map Handler
+(re-frame/reg-event-db
+  ::reset-view-box
+  (fn [db [_ new-viewbox]]
+    (update-in db [:solutionmap] assoc :view-box (toViewboxString new-viewbox))))

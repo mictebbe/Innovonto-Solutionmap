@@ -13,7 +13,7 @@
             :r             5
             :class         "idea-circle"
             :on-mouse-over #(re-frame/dispatch [::events/show-tooltip (.-target %1) idea])
-            :on-mouse-out #(re-frame/dispatch [::events/hide-tooltip])}])
+            :on-mouse-out  #(re-frame/dispatch [::events/hide-tooltip])}])
 
 
 ;;TOOLTIP STUFF
@@ -31,7 +31,22 @@
    [:button {:on-click #(re-frame/dispatch [::events/debug-print-db])} "Print DB"]
    [:button {:on-click #(re-frame/dispatch [::events/load-data])} "Load Data"]
    [:button {:on-click #(re-frame/dispatch [::events/use-mock-backend])} "Use Mock-Backend"]
-   [:button {:on-click #(re-frame/dispatch [::events/use-live-backend])} "Use Live-Backend"]])
+   [:button {:on-click #(re-frame/dispatch [::events/use-live-backend])} "Use Live-Backend"]
+   [:button {:on-click #(re-frame/dispatch [::events/reset-view-box {:x 0 :y 0 :width 500 :height 500}])} "Reset Viewbox"]
+   [:button {:on-click #(re-frame/dispatch [::events/reset-view-box {:x 50 :y 50 :width 500 :height 500}])} "Move Viewbox"]
+   ])
+
+(defn foo []
+  (let [solutionmap @(re-frame/subscribe [::subs/solutionmap])]
+    [:svg {:view-box (:view-box solutionmap)}
+     [:rect {:x 0 :y 0 :width 20 :height 20}]
+     [:rect {:x 480 :y 0 :width 20 :height 20}]
+     [:rect {:x 0 :y 480 :width 20 :height 20}]
+     [:rect {:x 480 :y 480 :width 20 :height 20}]]))
+
+
+#_[:svg.solution-map {:view-box "0 0 500 500"}
+   (map idea-circle (:ideas app-state))]
 
 (defn solutionmap-app []
   (let [app-state @(re-frame/subscribe [::subs/app-state])]

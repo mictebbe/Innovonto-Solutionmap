@@ -11,3 +11,8 @@
   ::backend
   (fn [db _]
     (:backend db)))
+
+(re-frame/reg-sub
+  ::solutionmap
+  (fn [db _]
+    (:solutionmap db)))

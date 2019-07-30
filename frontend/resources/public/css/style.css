@@ -41,3 +41,10 @@ body {
     width: 50px;
     height: auto;
 }
+
+svg {
+    outline: 1px solid black;
+    width: 500px;
+    cursor: move;
+    touch-action: none;
+}

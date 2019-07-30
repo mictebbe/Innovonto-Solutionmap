@@ -21,6 +21,9 @@
                             :thumbnailPath "img/16.png"
                             :x             100.8
                             :y             100.202352345}]
+                 :solutionmap {
+                               :view-box "0 0 500 500"
+                               }
                  :tooltip {
                            :state   "hidden"
                            :top     "0px"
